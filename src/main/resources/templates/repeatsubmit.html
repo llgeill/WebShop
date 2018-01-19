@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=10"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap-theme.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/MyCss/index.css}" type="text/css"/>
+    <script th:src="@{/jquery/jquery-3.2.1.min.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.js}"></script>
+    <title>重复提交</title>
+    <style>
+        .font-size{
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+<div style="text-align: center;position: fixed;top: 30%;left: 40%">
+    <div style="overflow: hidden">
+    <span class="font-size" style="color: red;float: left">提示：</span>
+    </div>
+    <br/>
+    <span class="font-size">对不起</span>
+    <br/>
+    <span class="font-size">订单已经提交成功</span>
+    <br/>
+    <span class="font-size">请不要重复提交</span>
+    <br/>
+    <span class="font-size">将在</span>
+    <br/>
+    <span id="count" class="font-size">6</span>
+    <span class="font-size">秒后</span>
+    <br/>
+    <a href="/" class="font-size">返回首页</a>
+</div>
+</body>
+<script>
+    function time() {
+        var i=Number(document.getElementById("count").innerHTML);
+        i--;
+        if(i==-1){
+            i++;
+            window.location="/";
+        };
+        document.getElementById("count").innerHTML=i;
+
+        setTimeout(function () {
+            time()
+        },1000);
+    }
+
+    time();
+</script>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>登陆界面</title>
+    <link rel="stylesheet" th:href="@{MyCss/login.css}" href="../../static/MyCss/login.css"/>
+    <script type="text/javascript">
+        var n = 0;
+        function trans() {
+            var change = document.getElementById("box1");
+            n = n + 60;
+            change.style.webkitTransform = "rotateY(" + (n) + "deg)";
+        }
+        window.onload = function () {
+            setInterval(trans, 1000);
+        }
+    </script>
+</head>
+<body >
+<div id="perspective">
+    <div id="box1">
+        <img class="img" id="img1" src="../../static/image/fenbin/2.jpg" th:src="@{image/2.jpg}" />
+        <img class="img" id="img2" src="../../static/image/fenbin/1.jpg" th:src="@{image/1.jpg}" />
+        <img class="img" id="img3" src="../../static/image/fenbin/4.jpg" th:src="@{image/4.jpg}" />
+        <img class="img" id="img4" src="../../static/image/fenbin/3.jpg" th:src="@{image/3.jpg} "/>
+        <img class="img" id="img5" src="../../static/image/fenbin/bk.jpg" th:src="@{image/bk.jpg} "/>
+        <img class="img" id="img6" src="../../static/image/fenbin/bk1.jpg" th:src="@{image/bk1.jpg} "/>
+    </div>
+</div>
+<div id="box">
+    <div class="hr1"></div>
+    <div class="hr2"></div>
+    <div class="title">
+        <p1>后台管理系统</p1>
+        <p2 href="">Background management system</p2>
+    </div>
+    <div class="input">
+        <form th:action="@{/login}" method="post">
+            <div class="id">
+                <em>ADMIN &nbsp;ID:</em>
+                <input type="text" name="username" class="input1" placeholder="请输入用户名"/>
+            </div>
+            <div class="pass">
+                <em>PASSWORD:</em>
+                <input type="password" name="password" class="input2" placeholder="请输入密码"/>
+            </div>
+            <input type="submit" value="LOGIN SYSTEM" name="submitBtn" class="button"/>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

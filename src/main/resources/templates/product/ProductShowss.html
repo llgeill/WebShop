@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=10"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <link rel="styleSheet" th:href="@{/MyCss/sweet-alert.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap-theme.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/MyCss/index.css}" type="text/css"/>
+    <script th:src="@{/jquery/jquery-3.2.1.min.js}"></script>
+    <script th:src="@{/jquery/jquery.tips.js}"></script>
+    <script th:src="@{js/sweet/sweet-alert.min.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.js}"></script>
+    <script th:src="@{/js/cx/cx.main.js}"></script>
+    <title>商品展示</title>
+    <style>
+        .title {
+            font-size: 30px;
+            margin-top: 30px;
+            border-left: 2px solid RGB(255,174,14);
+        }
+
+        .classify {
+            margin-right: 27px;
+            margin-left: 27px;
+        }
+
+        .leftClassify{
+            height: 30px;
+        }
+
+        /*郭木凯开始*/
+        .selectInput{
+            outline: none;
+            width: 100%;
+            background-color:RGB(255,172,14);
+            border:none;
+            font-size:25px;
+            color: white;
+        }
+
+        .input{
+            outline: none;
+            width: 100%;
+            background-color:transparent;
+            border: none;
+            border-bottom:1px RGB(120,120,120) solid;
+            font-size:larger;
+            color: RGB(130,130,130)
+        }
+        /*郭木凯结束*/
+    </style>
+</head>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" th:href="@{/}">烨之鑫批发商城</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li ><a th:href="@{/ProductShow}">商品<span class="sr-only">(current)</span></a></li>
+                <li><a th:href="@{/llg/cart}">购物车</a></li>
+            </ul>
+            <!--<form class="navbar-form navbar-left">-->
+            <!--<div class="form-group">-->
+            <!--<input type="text" class="form-control" placeholder="Search"/>-->
+            <!--</div>-->
+            <!--<button type="submit" class="btn btn-default">商品查找</button>-->
+            <!--</form>-->
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a  ><span id="username"></span></a></li>
+                <li th:if="${session.SPRING_SECURITY_CONTEXT} == null "><a th:href="@{/login}">登录</a></li>
+                <li th:if="${session.SPRING_SECURITY_CONTEXT} != null "><a href="#" onclick="logout()" >注销</a></li>
+                <li><a href="/register">注册</a></li>
+                <li class="dropdown">
+                    <a href="#" th:if="${session.SPRING_SECURITY_CONTEXT} != null " class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">用户中心 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a  data-target="#myModal" onclick="setForm()" data-toggle="modal"  href="#">资料设置</a></li>
+                        <li><a href="/llg/showOrderDetails">我的订单</a></li>
+                        <li id="admin" style="display: none"><a href="/admin/admin">后台管理</a></li>
+                        <li id="admins" style="display: none"><a href="/admin/allOrders">所有订单</a></li>
+                        <!--<li role="separator" class="divider"></li>-->
+                    </ul>
+                </li>
+            </ul>
+
+
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<body th:background="@{image/login/login.png}">
+
+
+
+
+<!--郭木凯开始-->
+
+<div id="range" style="width: 150px;left:0;background-color: RGB(43,43,43);border:3px solid RGB(255,172,14);border-left:0px;position: fixed">
+    <a th:each="pt,iterStat : ${productVoList}" th:href="'#'+${pt.productType.id}"><input id="kuaizi" th:value="${pt.productType.name}" type="button" class="input" onmousemove="clickInput(this)"/></a>
+</div>
+
+<!--郭木凯结束-->
+
+<div class="container">
+    <!--<div id="top" class="container" style="border: 2px #cccccc solid;height: 50px;line-height: 50px">-->
+        <!--<a style="color: #cccccc;margin-right: 20px">所有分类</a><span>|</span>-->
+        <!--<tr th:each="pt,iterStat : ${productVoList}">-->
+            <!--<td>-->
+                <!--<a class="classify"  th:href="'#'+${pt.productType.id}"><span th:inline="text">[[${pt.productType.name}]]</span></a><span>|</span>-->
+            <!--</td>-->
+        <!--</tr>-->
+    <!--</div>-->
+
+    <!--<div style="position:fixed;left: 5%;top: 170px;border: 2px #cccccc solid;height: 40%;width: 8%;line-height: 50px">-->
+        <!--<div class="leftClassify"><a style="color: #cccccc;margin-right: 20px">所有分类</a></div>-->
+        <!--<tr th:each="pt,iterStat : ${productVoList}">-->
+            <!--<td>-->
+                <!--<div class="leftClassify"><a class="classify" th:href="'#'+${pt.productType.id}"><span th:inline="text">[[${pt.productType.name}]]</span></a></div>-->
+            <!--</td>-->
+        <!--</tr>-->
+    <!--</div>-->
+
+    <tr th:each="pt,iterStat : ${productVoList}">
+        <div>
+            <div style="overflow: hidden">
+
+                    <div th:id="${pt.productType.id}" class="title container"><strong th:inline="text">[[${pt.productType.name}]]</strong></div>
+                        <th:block th:each="pl,iterStat : ${pt.productList}">
+                            <div style="background-color: white;height: auto;width: 270px;float: left;margin-right: 15px;margin-top: 15px;border:1px RGB(255,174,14) solid">
+                                <img th:src="${pl.productDetails.productImage}" style="height: 200px;width: 100%"/>
+                                <div style="border-top: 1px solid RGB(255,174,14)">
+                                <span>
+                                    <span style="color: #FF6600;font-size: 30px" th:inline="text">￥[[${pl.productDetails.onePrice}]]</span>元
+                                </span>
+                                    <span style="float:right;margin-right: 10px">月销量:<span
+                                            style="color: #FF6600;font-size: 27px" th:inline="text">[[${pl.productDetails.salesCount}]]</span></span>
+                                </div>
+                                <div style="font-size: 20px" th:inline="text">[[${pl.name}]]</div>
+                                <div style="height: 40px" th:inline="text">[[${pl.productDetails.productInstruction}]]</div>
+                                <span style="float: right;margin-right: 10px" th:inline="text">剩余：[[${pl.productDetails.stock}]]</span>
+                                <div style="width: 100%;margin-left: 30px;padding-top: 10px">
+                                    <div class="btn-group" role="group">
+                                        <span style="float:left;margin-top: 10px">购买数量：</span>
+                                        <button style="height: 40px" type="button" class="btn btn-default" onclick="doMinus(this)"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>
+                                        <button style="height: 40px" type="button" class="btn btn-default">1</button>
+                                        <button style="height: 40px" class="btn btn-default" onclick="doPlus(this)"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+                                    </div>
+                                </div>
+                                <div class="btn-group" role="group" style="width: 270px;margin-top: 6px">
+                                    <button th:id="${pl.id}" type="button" class="btn btn-warning form-control" style="width: 50%;height: 100%" onclick="doAdd(this)">加入购物车
+                                    </button>
+                                    <button th:id="${pl.id}" type="button" class="btn btn-success form-control" style="width: 50%;height: 100%" onclick="doBuy(this)">立即购买
+                                    </button>
+                                </div>
+                            </div>
+                        </th:block>
+
+            </div>
+        </div>
+    </tr>
+
+
+
+
+
+</div>
+<div style="position: fixed;bottom: 10%;right: 20%"><a href="#top">回到顶部</a></div>
+<!-- 用户信息设置模态框（Modal） -->
+<div class="modal fade" id="myModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    个人信息设置
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="auForm" class="form-horizontal" role="form" th:action="@{/updateUser}"   method="post">
+                    <input id="userid" name="id"   type="hidden" value="" />
+                    <input id="ROLE_USER" name="ROLE_USER"   type="hidden" value="" />
+                    <input id="istrue" name="istrue"   type="hidden" value="" />
+                    <div class="form-group">
+                        <label for="updateusername" class="col-sm-3 control-label"><font color="red">*</font>用户名：</label>
+                        <div class="col-sm-8">
+                            <input id="updateusername" name="username" type="text" cxValidate="required"  class="form-control" placeholder="请输入名字"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label"><font color="red">*</font>密码：</label>
+                        <div class="col-sm-8">
+                            <input type="password" name="password" id="password" cxValidate="ennum"  class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phonenumber" class="col-sm-3 control-label"><font color="red">*</font>号码：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="phonenumber" id="phonenumber" cxValidate="required"  class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="col-sm-3 control-label"><font color="red">*</font>地址：</label>
+                        <div class="col-sm-8">
+                            <textarea  name="address" id="address" cxValidate="required"  class="form-control" style="height: 100px ; overflow: hidden"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-3 control-label"><font color="red">*</font>邮箱：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="email" id="email" cxValidate="email"  class="form-control"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="background: rgba(248,248,248,1)" >
+                <button type="button" id="saveBtn" class="btn btn-info" >
+                    确认保存
+                </button>
+                <button type="button" id="closeBtn" class="btn btn-default" data-dismiss="modal">
+                    取消修改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- #dialog-confirm -->
+</body>
+<script  th:inline="javascript">
+    /*<![CDATA[*/
+    var header = $("meta[name='_csrf_header']").attr("content");
+    var token =$("meta[name='_csrf']").attr("content");
+    function doPlus(button) {
+        var value=$(button).prev().text();
+        value=Number(value);
+        value++;
+        $(button).prev().text(value);
+
+    }
+    function doMinus(obj) {
+        var value=$(obj).next().text();
+        value=Number(value);
+        if(value>1)
+            value--;
+        $(obj).next().text(value);
+    }
+    function doBuy(obj) {
+        var username = [[${session.SPRING_SECURITY_CONTEXT}]];
+        if(username==null||username==''){
+            swal({
+                    title: "对不起，你还没有登录？",
+                    text: "点击确定跳转登陆页面！",
+                    type: "warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定",
+                    closeOnConfirm: false
+                },
+                function(){
+                    window.location.href="/login";
+                });
+        }else {
+            var id = $(obj).attr("id");
+            var quantity = $(obj).parent().prev().find("button").next().text();
+            $.ajax({
+                url: "/addProduct",
+                type: "POST",
+                data: {id: id, quantity: quantity, p: "add"},
+                async: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function (data) {
+                },
+            });
+            $.ajax({
+                url: "/skipToPay?ids=" + id,
+                type: "POST",
+                data: {id: id, quantity: quantity, p: "add"},
+                async: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function (data) {
+                    if (data != null)
+                        window.location.href = "/skipToPay?ids=" + id;
+                    else
+                        swal({
+                                title: "不好意思，购买失败，请与网站管理员联系？",
+                                text: "点击确定跳转登陆页面！",
+                                type: "warning",
+                                confirmButtonColor: "#DD6B55",
+                                confirmButtonText: "确定",
+                                closeOnConfirm: false
+                            },
+                            function(){
+                                window.location.href="/login";
+                            });
+                },
+//            error : function(xhr, ajaxOptions, throwError) { }
+            });
+        }
+
+    }
+    function doAdd(obj) {
+        var username = [[${session.SPRING_SECURITY_CONTEXT}]];
+        if(username==null||username==''){
+            swal({
+                    title: "对不起，你还没有登录？",
+                    text: "点击确定跳转登陆页面！",
+                    type: "warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定",
+                    closeOnConfirm: false
+                },
+                function(){
+                    window.location.href="/login";
+                });
+        }else {
+            var id = $(obj).next().attr("id");
+            var quantity = $(obj).parent().prev().find("button").next().text();
+            $.ajax({
+                url: "/addProduct",
+                type: "POST",
+                data: {id: id, quantity: quantity, p: "add"},
+                //async : false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function (data) {
+                    if (data.trim() == "success") {
+                        swal({
+                            title: "加入购物车成功",
+                            text: "商品已经添加到您的购物车中！",
+                            showConfirmButton: false,
+                            type: "success",
+                            timer: 1000,
+
+                        });
+                    } else {
+                        swal({
+                            title: "加入购物车失败",
+                            text: "商品已经添加到您的购物车中！",
+                            showConfirmButton: false,
+                            type: "error",
+                            timer: 1000 ,
+
+                        })
+                    }
+
+                },
+//            error : function(xhr, ajaxOptions, throwError) { }
+            });
+        }
+    }
+    //    郭木凯开始
+
+    function clickInput(obj) {
+        $("input.selectInput").removeClass("selectInput").addClass("input");
+        $(obj).removeClass("input").addClass("selectInput");
+        $(obj).parent().attr("href");
+    }
+    //    郭木凯结束
+
+    $(function () {
+        var height=document.documentElement.clientHeight;
+        var unitHeight=height/12;
+        $("#range").css({"height":height*(5/6)});
+        $("input.input").css("height",unitHeight);
+        $("input.selectInput").css("height",unitHeight);
+        $.ajax({
+            url : "/getUsername",
+            type : "POST",
+            data : "",
+            contentType : 'application/json;charset=utf-8',
+            //async : false,
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+
+            },
+            success : function(data) {
+                if(data!=''){
+                    $("#username").html('欢迎您,'+data);
+                }
+            },
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+        $.ajax({
+            url : "/getAdminRole",
+            type : "POST",
+            data : "",
+            contentType : 'application/json;charset=utf-8',
+            //async : false,
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                if(data=='admin'){
+                    $("#admin").css('display', 'block');
+                    $("#admins").css('display', 'block');
+
+                }
+            },
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+    });
+    /*]]>*/
+</script>
+</html>

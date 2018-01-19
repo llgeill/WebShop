@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+
+</head>
+<body>
+<!--    -->
+<div data-th-object="${user}">
+    <p>Name: <span data-th-text="*{name}">Sebastian</span>.</p>
+    <p>Surname: <span data-th-text="*{address}">Pepper</span>.</p>
+    <p>Nationality: <span data-th-text="*{age}">Saturn</span>.</p>
+</div>
+
+<div data-th-object="${user}">
+    <p>Name: <span data-th-text="*{name}">Sebastian</span>.</p>
+    <p>Surname: <span data-th-text="${user.address}">Pepper</span>.</p>
+    <p>Nationality: <span data-th-text="*{age}">Saturn</span>.</p>
+</div>
+<p>
+    Today is: <span data-th-text="${#calendars.format(today,'dd MMMM yyyy')}">13 May 2011</span>
+</p>
+<p>
+    Today is: <span data-th-text="${today}">13 May 2011</span>
+</p>
+<p>The year is <span data-th-text="2013">1492</span>.</p>
+<div data-th-if="${something} != null">
+<p>我不应该显示出来的 <span data-th-text="2013 + 2">1494</span>.</p>
+</div>
+<div data-th-if="${something} == null">
+    <p>我可能是要显示出来的 <span data-th-text="2013 + 2">1494</span>.</p>
+</div>
+<span data-th-text="*{user.name} ?:  '(no age specified)'">...</span>
+<input type="checkbox" name="active" data-th-checked="${user.name}" />
+<div data-th-switch="${user.name}">
+    <p data-th-case="'李利光'">User is an llg</p>
+    <p data-th-case="'xxx'">User is a manager</p>
+    <p data-th-case="*">User is some other thing</p>
+</div>
+
+<div data-th-replace="s/footer :: copy"></div>
+<p id="llg" data-th-inline="text">A double array looks like this: [[${user.name}]]!</p>
+
+
+
+</body>
+</html>

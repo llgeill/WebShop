@@ -1,0 +1,50 @@
+#main  {float:left;border:1px ; width:100%;}
+.llgleft  {float:left;border:1px ; width:20%; }
+#llgright {float:left;border:1px ; width:80%; height: 100%}
+#divcss5{text-align:center;width:100%;}
+.list-group a{
+    height:10%;
+    font-size: 16px;
+    padding: 15px 0 0 25px;
+    margin:auto;
+}
+.carousel-indicators{
+    width:75%;
+    left: 40%;
+}
+.carousel-indicators {
+    bottom: 0px;
+}
+.imgsize{
+    height:100%;
+}
+.show {
+    display: block !important;
+}
+
+.hidden {
+    display: none !important;
+}
+.invisible {
+    visibility: hidden;
+}
+Usage as mixins
+.element {
+.show();
+}
+.another-element {
+.hidden();
+}
+.children {
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0;
+    z-index: 24;
+    height: 100%;
+    border: 1px solid #e0e0e0;
+    border-left: 0;
+    background: #fff;
+    -webkit-box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+}

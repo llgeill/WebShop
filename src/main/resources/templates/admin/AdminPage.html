@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=10"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/MyCss/sweet-alert.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/MyCss/fileinput.css}" type="text/css"/>
+    <script th:src="@{/jquery/jquery-3.2.1.min.js}"></script>
+    <script th:src="@{/js/sweet/sweet-alert.min.js}"></script>
+    <script th:src="@{/js/inputfile/fileinput.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.js}"></script>
+    <script th:src="@{/js/cx/cx.main.js}"></script>
+    <script th:src="@{/jquery/jquery.tips.js}"></script>
+    <!--简体中文-->
+    <script th:src="@{/xb/js/locales/zh.js}" type="text/javascript"></script>
+    <title>后台管理</title>
+    <style>
+        body{
+            background: url("/image/admin/admin.jpg");
+            background-size:cover;
+        }
+        .selectInput{
+            width: 100%;
+            background-color:RGB(255,172,14);
+            border:none;
+            font-size:25px;
+            color: white;
+        }
+
+        input:focus { outline: none; }
+
+        .input{
+            width: 100%;
+            background-color:transparent;
+            border: none;
+            border-bottom:1px RGB(120,120,120) solid;
+            font-size:larger;
+            color: RGB(130,130,130)
+        }
+        body{
+            height: 100%;
+            background-attachment: fixed;
+            overflow-x: hidden;
+            padding-left: 150px;
+        }
+    </style>
+</head>
+<body >
+<!--类别循环-->
+<div id="range" style="background-color: RGBA(43,43,43,0.7);height: 100%;width: 150px;float: left;position: fixed;left:0;top:0;z-index: 1000">
+    <td th:each="pv,iterStat : ${productVoList}">
+        <input th:id="${pv.productType.id}" th:name="${pv.productType.ename}" th:value="${pv.productType.name}" type="button" class="input" onclick="clickInput(this)"/>
+    </td>
+</div>
+<div id="top" style="width: 100%;background-color: RGBA(43,43,43,1);text-align: center;position:fixed;top:0;left:0;z-index: 100">
+    <input id="changeShow" value="轮播" type="button" class="input" style="border-bottom:none;width: 200px" onclick="clickInput(this)"/>
+    <input id="changeYear" value="年排行" type="button" class="input" style="border-bottom:none;width: 200px" onclick="clickInput(this)"/>
+    <input id="changeMonth" value="月排行" type="button" class="input" style="border-bottom:none;width: 200px" onclick="clickInput(this)"/>
+    <input id="changeWeek" value="周排行" type="button" class="input" style="border-bottom:none;width: 200px" onclick="clickInput(this)"/>
+    <input id="admin" value="返回首页" type="button" class="input" style="width: 200px;border-bottom:none;border-left: 1px RGB(120,120,120) solid;float: right" onclick="window.location.href='/'"/>
+</div>
+<!--商品修改-->
+<div class="row">
+    <div id="baseDate"  class="col-md-11 row">
+    </div>
+</div>
+<!--轮播界面-->
+<div style="text-align: center;margin-top: 20px;padding-right: 50px">
+<div style="margin: 0 auto">
+    <div id="isBigCarousel"></div>
+    <!--style="margin-top: 20px;height: 128px"-->
+    <div id="isCarousel" ></div>
+</div>
+</div>
+<!--年排名-->
+<div class="container" style="margin-top: 7%">
+<div class="row" id="isYear"></div>
+</div>
+<!--月排名-->
+<div class="container" style="margin-top: 7%">
+<div class="row" id="isMonth"></div>
+</div>
+<!--周排名-->
+<div class="container" style="margin-top: 7%">
+<div class="row" id="isWeek"></div>
+</div>
+
+<!-- 修改数据模态框（Modal） -->
+<div class="modal fade" id="myModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    编辑商品数据
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="auForm" class="form-horizontal" role="form" th:action="@{/upload}" enctype="multipart/form-data" method="post">
+                    <input id="productId" name="id"   type="hidden" value="" />
+                    <input id="productDetailsId" name="productDetails.id"   type="hidden" value="" />
+                    <input id="productImage" name="productDetails.productImage"   type="hidden" value="" />
+                    <input id="isWeeks"  name="productDetails.isWeek"   type="hidden" value="" />
+                    <input id="isYears"  name="productDetails.isYear"  type="hidden" value="" />
+                    <input id="isMonths"  name="productDetails.isMonth"  type="hidden" value="" />
+                    <input id="isCarousels"  name="productDetails.isCarousel"   type="hidden" value="" />
+                    <div class="form-group">
+                        <label for="productname" class="col-sm-3 control-label"><font color="red">*</font>产品名称：</label>
+                        <div class="col-sm-8">
+                            <input id="productname" name="name" type="text" cxValidate="required"  class="form-control" placeholder="请输入名字"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productType" class="col-sm-3 control-label"><font color="red">*</font>产品类型：</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="productType" name="productType" >
+                                <option  th:value ="${pv.productType.id}"  th:inline="text" th:each="pv,iterStat : ${productVoList}">[[${pv.productType.name}]]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="onePrice" class="col-sm-3 control-label"><font color="red">*</font>原始价格：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="productDetails.onePrice" id="onePrice" cxValidate="required"  class="form-control"
+                                   placeholder="请输入原始价格"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="twoPrice" class="col-sm-3 control-label"><font color="red">*</font>优惠价格：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="twoPrice" name="productDetails.twoPrice" cxValidate="required"  class="form-control"
+                                   placeholder="请输入优惠价格"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="oneCount" class="col-sm-3 control-label"><font color="red">*</font>最低批发量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="oneCount" name="productDetails.oneCount" cxValidate="required"  class="form-control"
+                                   placeholder="请输入最低批发量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="twoCount" class="col-sm-3 control-label"><font color="red">*</font>优惠批发量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="twoCount"  name="productDetails.twoCount"  cxValidate="required"  class="form-control"
+                                   placeholder="请输入优惠批发量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock" class="col-sm-3 control-label"><font color="red">*</font>库存量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="stock"  name="productDetails.stock"   cxValidate="required"  class="form-control"
+                                   placeholder="请输入库存数量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="salesCount" class="col-sm-3 control-label"><font color="red">*</font>销售量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="salesCount"  name="productDetails.salesCount"  cxValidate="required"  class="form-control"
+                                   placeholder="请输入销售量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productInstruction" class="col-sm-3 control-label"><font color="red">*</font>产品简介：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="productInstruction"  name="productDetails.productInstruction" cxValidate="required"  class="form-control"
+                                   placeholder="请输入产品简介"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="file-3" class="col-sm-3 control-label"><font color="red">*</font>图片上传：</label>
+                        <div class="col-sm-8" id="fanren">
+                            <input  id="file-3"  name="file"   type="file" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="background: rgba(248,248,248,1)" >
+                <button type="button" id="saveBtn" class="btn btn-info" >
+                    确认保存
+                </button>
+                <button type="button" id="closeBtn" class="btn btn-default" data-dismiss="modal">
+                    取消修改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- #dialog-confirm -->
+
+
+<!-- 增加数据模态框（Modal） -->
+<div class="modal fade" id="otherModal"  tabindex="-1" role="dialog" aria-labelledby="otherModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="otherModalLabel">
+                    添加商品数据
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="otherauForm" class="form-horizontal" role="form" th:action="@{/upload}" enctype="multipart/form-data" method="post">
+                    <input id="otherproductId" name="id"   type="hidden" value="" />
+                    <input id="otherproductDetailsId" name="productDetails.id"   type="hidden" value="" />
+                    <input id="otherproductImage" name="productDetails.productImage"   type="hidden" value="" />
+                    <input id="otherisWeek"  name="productDetails.isWeek"   type="hidden" value="" />
+                    <input id="otherisYear"  name="productDetails.isYear"  type="hidden" value="" />
+                    <input id="otherisMonth"  name="productDetails.isMonth"  type="hidden" value="" />
+                    <input id="otherisCarousel"  name="productDetails.isCarousel"   type="hidden" value="" />
+                    <div class="form-group">
+                        <label for="productname" class="col-sm-3 control-label"><font color="red">*</font>产品名称：</label>
+                        <div class="col-sm-8">
+                            <input id="otherproductname" name="name" type="text" cxValidate="required"  class="form-control" placeholder="请输入名字"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productType" class="col-sm-3 control-label"><font color="red">*</font>产品类型：</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" id="otherproductType" name="productType" >
+                                <option  th:value ="${pv.productType.id}"  th:inline="text" th:each="pv,iterStat : ${productVoList}">[[${pv.productType.name}]]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="onePrice" class="col-sm-3 control-label"><font color="red">*</font>原始价格：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="productDetails.onePrice" id="otheronePrice" cxValidate="required"  class="form-control"
+                                   placeholder="请输入原始价格"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="twoPrice" class="col-sm-3 control-label"><font color="red">*</font>优惠价格：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="othertwoPrice" name="productDetails.twoPrice" cxValidate="required"  class="form-control"
+                                   placeholder="请输入优惠价格"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="oneCount" class="col-sm-3 control-label"><font color="red">*</font>最低批发量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="otheroneCount" name="productDetails.oneCount" cxValidate="required"  class="form-control"
+                                   placeholder="请输入最低批发量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="twoCount" class="col-sm-3 control-label"><font color="red">*</font>优惠批发量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="othertwoCount"  name="productDetails.twoCount"  cxValidate="required"  class="form-control"
+                                   placeholder="请输入优惠批发量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock" class="col-sm-3 control-label"><font color="red">*</font>库存量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="otherstock"  name="productDetails.stock"   cxValidate="required"  class="form-control"
+                                   placeholder="请输入库存数量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="salesCount" class="col-sm-3 control-label"><font color="red">*</font>销售量：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="othersalesCount"  name="productDetails.salesCount"  cxValidate="required"  class="form-control"
+                                   placeholder="请输入销售量"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="productInstruction" class="col-sm-3 control-label"><font color="red">*</font>产品简介：</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="otherproductInstruction"  name="productDetails.productInstruction" cxValidate="required"  class="form-control"
+                                   placeholder="请输入产品简介"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="file-3" class="col-sm-3 control-label"><font color="red">*</font>图片上传：</label>
+                        <div class="col-sm-8" id="otherfanren">
+                            <input  id="otherfile-3"  name="file"   type="file" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="background: rgba(248,248,248,1)" >
+                <button type="button" id="othersaveBtn" class="btn btn-info" >
+                    确认保存
+                </button>
+                <button type="button" id="othercloseBtn" class="btn btn-default" data-dismiss="modal">
+                    取消修改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- #dialog-confirm -->
+
+<!--郭木凯需要的特大模态框（Modal）-->
+<div class="modal fade bs-example-modal-lg" id="carouselModal"  tabindex="-1" role="dialog" aria-labelledby="carouselModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="carouselModalLabel">
+                    选择您所需要展示的产品
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" >
+                    <td th:each="pd,iterStat : ${productList}">
+                        <div class="col-sm-8 col-md-3" >
+                            <div class="thumbnail">
+                                <img th:name="${pd.id}" onclick="finalSwapImage(this)" th:src="${pd.productDetails.productImage}" alt="通用的占位符缩略图"/>
+                                <div class="caption">
+                                    <h4><span th:inline="text">[[${pd.name}]]</span></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="yearModal"  tabindex="-1" role="dialog" aria-labelledby="yearModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="yearModalLabel">
+                    选择您所需要展示的产品
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" >
+                    <td th:each="pd,iterStat : ${productList}">
+                        <div class="col-sm-8 col-md-3" >
+                            <div class="thumbnail">
+                                <img th:name="${pd.id}" onclick="changeYear(this)" th:src="${pd.productDetails.productImage}" alt="通用的占位符缩略图"/>
+                                <div class="caption">
+                                    <h4><span th:inline="text">[[${pd.name}]]</span></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="monthModal"  tabindex="-1" role="dialog" aria-labelledby="monthModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="monthModalLabel">
+                    选择您所需要展示的产品
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" >
+                    <td th:each="pd,iterStat : ${productList}">
+                        <div class="col-sm-8 col-md-3" >
+                            <div class="thumbnail">
+                                <img th:name="${pd.id}" onclick="changeMonth(this)" th:src="${pd.productDetails.productImage}" alt="通用的占位符缩略图"/>
+                                <div class="caption">
+                                    <h4><span th:inline="text">[[${pd.name}]]</span></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="weekModal"  tabindex="-1" role="dialog" aria-labelledby="weekModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="weekModalLabel">
+                    选择您所需要展示的产品
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" >
+                    <td th:each="pd,iterStat : ${productList}">
+                        <div class="col-sm-8 col-md-3" >
+                            <div class="thumbnail">
+                                <img th:name="${pd.id}" onclick="changeWeek(this)" th:src="${pd.productDetails.productImage}" alt="通用的占位符缩略图"/>
+                                <div class="caption">
+                                    <h4><span th:inline="text">[[${pd.name}]]</span></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+
+</body>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var header = $("meta[name='_csrf_header']").attr("content");
+    var token =$("meta[name='_csrf']").attr("content");
+    var bigImage='';
+    function setForm(id) {
+        $.ajax({
+            url : "/getProductById",
+            type : "GET",
+            data : {'id':id},
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                $('#productId').val(data.id);
+                $('#productname').val(data.name);
+                $('#productType').val(data.productType.id);
+                $('#salesCount').val(data.productDetails.salesCount);
+                $('#onePrice').val(data.productDetails.onePrice);
+                $('#twoPrice').val(data.productDetails.twoPrice);
+                $('#oneCount').val(data.productDetails.oneCount);
+                $('#twoCount').val(data.productDetails.twoCount);
+                $('#stock').val(data.productDetails.stock);
+                $('#productDetailsId').val(data.productDetails.id);
+                $('#productImage').val(data.productDetails.productImage);
+                $('#productInstruction').val(data.productDetails.productInstruction);
+                $('#isWeeks').val(data.productDetails.isWeek);
+                $('#isMonths').val(data.productDetails.isMonth);
+                $('#isYears').val(data.productDetails.isYear);
+                $('#isCarousels').val(data.productDetails.isCarousel);
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+    }
+    function clearForm(obj)    {
+        var a=$(obj).attr('productTypeId');
+        $('#productId').val('');
+        $('#productname').val('');
+        $('#productType').val(a);
+        $('#salesCount').val('');
+        $('#onePrice').val('');
+        $('#twoPrice').val('');
+        $('#oneCount').val('');
+        $('#twoCount').val('');
+        $('#stock').val('');
+        $('#productDetailsId').val('');
+        $('#productImage').val('');
+        $('#productInstruction').val('');
+        $('#isWeek').val('');
+        $('#isMonth').val('');
+        $('#isYear').val('');
+        $('#isCarousel').val('');
+
+        $('#otherproductId').val('');
+        $('#otherproductname').val('');
+        $('#otherproductType').val(a);
+        $('#othersalesCount').val('');
+        $('#otheronePrice').val('');
+        $('#othertwoPrice').val('');
+        $('#otheroneCount').val('');
+        $('#othertwoCount').val('');
+        $('#otherstock').val('');
+        $('#otherproductDetailsId').val('');
+        $('#otherproductImage').val('');
+        $('#otherproductInstruction').val('');
+        $('#otherisWeek').val('');
+        $('#otherisMonth').val('');
+        $('#otherisYear').val('');
+        $('#otherisCarousel').val('');
+
+    }
+    function clearAll() {
+        $('#baseDate').empty();
+        $('#isCarousel').empty();
+        $('#isBigCarousel').empty();
+        $('#isYear').empty();
+        $('#isMonth').empty();
+        $('#isWeek').empty();
+    }
+    function clickInput(obj) {
+        clearAll();
+        $("input.selectInput").removeClass("selectInput").addClass("input");
+        $(obj).removeClass("input").addClass("selectInput");
+        var typeId=$(obj).prop("id");
+        getbaseList(typeId);
+    }
+    function getbaseList(typeId) {
+        $.ajax({
+            url : "/getAllProduct",
+            type : "POST",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                switch (typeId){
+                    case "changeShow":
+                        getCarouselList(data);
+                        break;
+                    case "changeYear":
+                        getisYearList(data);
+                        break;
+                    case "changeMonth":
+                        getisMonthList(data);
+                        break;
+                    case "changeWeek":
+                        getisWeekList(data);
+                        break;
+                    default :
+                        getTypeProduct(data,typeId);
+                }
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+    }
+    function getTypeProduct(data,typeId) {
+        $('#baseDate').empty();
+        var count=1;
+        var html='';
+        var list=data;
+        html+='<div class="col-sm-2"></div>';
+        html+=' <div class="caption col-md-2"  style="border: 1px wheat solid;margin:15px;background-color: white;border:1px RGB(255,174,14) solid" >\n' +
+            '<img data-toggle="modal"   productTypeId="'+typeId+'" data-target="#otherModal"   id="addBtn" onclick="clearForm(this)" src="/image/admin/add.png" alt="通用的占位符缩略图" width="100%" height="230px" style="margin-top: 10px"/></div>';
+        for(var i=0;i<list.length;i++){
+            if(list[i].productType.id==typeId){
+                html+=' <div class="caption col-md-2"  style="border: 1px wheat solid;margin:15px;background-color: white;" >\n' +
+                    '<img name="'+list[i].id+'" src="'+list[i].productDetails.productImage+'" alt="通用的占位符缩略图" width="100%" height="150px" style="margin-top: 10px;border:1px RGB(255,174,14) solid"/>'+
+                    ' <h4><span >'+list[i].name+'</span></h4>'+
+//                    ' <p style="height: 60px"><span>'+list[i].productDetails.productInstruction+'</span></p>'+
+                    ' <p>'+
+                    ' <a  data-toggle="modal" name="'+list[i].id+'" data-target="#myModal" class="btn btn-default " role="button" onclick="setForm(this.name)" >编辑</a>'+
+                    ' <a  class="btn btn-danger" name="'+list[i].id+'" productTypeId="'+list[i].productType.id+'"  role="button" id="deleateBtn">删除</a>'+
+                    '</p>'+
+                    '</div>';
+                count++;
+                if(count%4==0){
+                    html+='<div class="col-sm-2"></div>';
+                }
+            }
+        }
+        $("#baseDate").append(html);
+    }
+    function getCarouselList(data) {
+        $('#isCarousel').empty();
+        $('#isBigCarousel').empty();
+        var html='';
+        var bightml='';
+        var list=data;
+        var count=0;
+        for(var i=0;i<list.length;i++){
+            if(list[i].productDetails.isCarousel==1){
+                count++;
+                if(count==1){
+                    bightml+='<button id="'+list[i].id+'" name="'+list[i].id+'" onclick="swapImage(this)" style="padding: 0px;border: 0px"  data-toggle="modal" data-target="#carouselModal" >'+
+                        ' <img name="'+list[i].id+'" id="bigImage" src="'+list[i].productDetails.productImage+'" width="1024px" height="640px" style="border:1px RGB(255,174,14) solid"/></button>';
+                }
+                html+='<button name="'+list[i].id+'" style="padding: 0px;margin: 10px;border: 0px" onclick="changeImage(this)">'+
+                    '<img src="'+list[i].productDetails.productImage+'" width="204.8" height="128" style="border:1px RGB(255,174,14) solid"/></button>'
+            }
+        }
+        $("#isCarousel").append(html);
+        $('#isBigCarousel').append(bightml);
+    }
+    function getisYearList(data) {
+        $('#isYear').empty();
+        var html='';
+        var list=data;
+        for(var i=0;i<list.length;i++){
+            if(list[i].productDetails.isYear==1){
+                html+='<div class="col-md-3" style="height: 800px;padding: 0px;text-align: center;">\n' +
+                        '<div style="background-color: RGBA(187,213,216,0.5)">'+
+                    '        <div>\n' +
+                    '            <button style="border: 0;padding: 0" name="'+list[i].id+'" onclick="swapImage(this)" data-toggle="modal" data-target="#yearModal">\n' +
+                    '    <img style="border:1px solid RGB(255,174,14)" id="'+list[i].id+'" name="'+list[i].id+'" src="'+list[i].productDetails.productImage+'"width="100%" height="300px"/>\n' +
+                    '            </button>\n' +
+                    '        </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+                    '        <strong name="'+list[i].id+'" style="font-size: 25px;color: black">'+list[i].name+'</strong>\n' +
+                    '    </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+//                    '        <strong name="'+list[i].id+'" style="font-size: 23px;color: black">'+list[i].productDetails.productInstruction+'</strong>\n' +
+                    '    </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+                    '        <img style="margin-top: 20px" src="/image/admin/number.png" width="100" height="130"/>\n' +
+                    '    </div>\n' +
+                        '</div>'+
+                    '</div>'
+            }
+        }
+        $("#isYear").append(html);
+    }
+    function getisMonthList(data) {
+        $('#isYear').empty();
+        var html='';
+        var list=data;
+        for(var i=0;i<list.length;i++){
+            if(list[i].productDetails.isMonth==1){
+                html+='<div class="col-md-3" style="height: 800px;text-align: center;padding: 0px">\n' +
+                        '<div style="background-color: RGBA(187,213,216,0.5)">'+
+                    '        <div>\n' +
+                    '            <button name="'+list[i].id+'" style="border: 0;padding: 0px" onclick="swapImage(this)" data-toggle="modal" data-target="#monthModal">\n' +
+                    '    <img style="border:1px solid RGB(255,174,14)" id="'+list[i].id+'" name="'+list[i].id+'" src="'+list[i].productDetails.productImage+'"width="100%" height="300px"/>\n' +
+                    '            </button>\n' +
+                    '        </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+                    '        <strong name="'+list[i].id+'" style="font-size: 25px;color: black">'+list[i].name+'</strong>\n' +
+                    '    </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+//                    '        <strong name="'+list[i].id+'" style="font-size: 23px;color: black">'+list[i].productDetails.productInstruction+'</strong>\n' +
+                    '    </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+                    '        <img style="margin-top: 20px" src="/image/admin/number.png" width="100" height="130"/>\n' +
+                    '    </div>\n' +
+                        '</div>'+
+                    '</div>'
+            }
+        }
+        $("#isYear").append(html);
+    }
+    function getisWeekList(data) {
+        $('#isYear').empty();
+        var html='';
+        var list=data;
+        for(var i=0;i<list.length;i++){
+            if(list[i].productDetails.isWeek==1){
+                html+='<div class="col-md-3" style="height: 800px;text-align: center;padding: 0px">\n' +
+                        '<div style="background-color: RGBA(187,213,216,0.5)">'+
+                    '        <div>\n' +
+                    '            <button id="sb" name="'+list[i].id+'" style="border: 0;padding: 0px"  onclick="swapImage(this)" data-toggle="modal" data-target="#weekModal">\n' +
+                    '    <img style="border:1px solid RGB(255,174,14)" id="'+list[i].id+'" name="'+list[i].id+'" src="'+list[i].productDetails.productImage+'"width="100%" height="300px"/>\n' +
+                    '            </button>\n' +
+                    '        </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+                    '        <strong name="'+list[i].id+'" style="font-size: 25px;color: black">'+list[i].name+'</strong>\n' +
+                    '    </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+//                    '        <strong name="'+list[i].id+'" style="font-size: 23px;color: black">'+list[i].productDetails.productInstruction+'</strong>\n' +
+                    '    </div>\n' +
+                    '    <div style="margin: 0 auto">\n' +
+                    '        <img style="margin-top: 20px" src="/image/admin/number.png" width="100" height="130"/>\n' +
+                    '    </div>\n' +
+                        '</div>'+
+                    '</div>'
+            }
+        }
+        $("#isYear").append(html);
+    }
+    function swapImage(obj) {
+        var bgm=$(obj).find("img").prop("name");
+        bigImage=bgm;
+    }
+    function changeYear(obj) {
+        var newProductId=$(obj).prop("name");
+        $.ajax({
+            url : "/updateYear",
+            type : "POST",
+            data : {'newProductId':newProductId,'oldProductId':bigImage},
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                $('#yearModal').modal('hide');
+                getbaseList('changeYear');
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+
+    }
+    function changeMonth(obj) {
+        var newProductId=$(obj).prop("name");
+        $.ajax({
+            url : "/updateMonth",
+            type : "POST",
+            data : {'newProductId':newProductId,'oldProductId':bigImage},
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                $('#monthModal').modal('hide');
+                getbaseList('changeMonth');
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+
+    }
+    function changeWeek(obj) {
+        var newProductId=$(obj).prop("name");
+        $.ajax({
+            url : "/updateWeek",
+            type : "POST",
+            data : {'newProductId':newProductId,'oldProductId':bigImage},
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                $('#weekModal').modal('hide');
+                getbaseList('changeWeek');
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+
+    }
+    function finalSwapImage(obj) {
+        var newProductId=$(obj).prop("name");
+        $.ajax({
+            url : "/updateCarousel",
+            type : "POST",
+            data : {'newProductId':newProductId,'oldProductId':bigImage},
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                $('#carouselModal').modal('hide');
+                getbaseList('changeShow');
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+
+    }
+    //点击小图片时更换大图片
+    function changeImage(obj) {
+        var src=$(obj).find("img").attr("src");
+        var id=$(obj).attr("name");
+        var bigImagex=document.getElementById('bigImage');
+        bigImagex.name=id;
+        bigImagex.src=src;
+    }
+    $(function () {
+        var height=document.documentElement.clientHeight;
+        $("#range").css("height",height);
+        $("body").css("padding-top",height/10);
+        $("#range").css("padding-top",height/11);
+        $("#top").css("height",height/11);
+        $("input.input").css("height",height/11);
+        //---llg
+        $('#myModal').modal('hide');
+        $(document).on('click','#saveBtn',function () {
+            if (CX.Validate.form("auForm")) {
+                var poductTypeId= $('#productType').val();
+                var form = new FormData(document.getElementById("auForm"));
+                $.ajax({
+                    url : "/upload",
+                    type : "POST",
+                    data:form,
+                    processData:false,
+                    contentType:false,
+                    beforeSend : function(xhr) {
+                        xhr.setRequestHeader(header, token);
+
+                    },
+                    success : function(data) {
+                        sweetAlert("数据修改成功！", "数据已经修改完毕！", "success");
+                        getbaseList(poductTypeId);
+                        $('#myModal').modal('hide');
+                    }
+                });
+            }
+        });
+        $(document).on('click','#deleateBtn',function (){
+            var id=$(this).prop('name');
+            swal({
+                    title: "确定删除吗？",
+                    text: "你将无法恢复该数据！",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确定删除！",
+                    cancelButtonText: "取消删除！",
+                    closeOnConfirm: false,
+                },
+                function(){
+                    $.ajax({
+                        url : "/deleateProductById",
+                        type : "POST",
+                        data : {'id':id},
+                        beforeSend : function(xhr) {
+                            xhr.setRequestHeader(header, token);
+                        },
+                        success : function(data) {
+                            swal("删除！", "当前数据已经被删除。", "success");
+                            clearForm(data);
+                            getbaseList(data);
+                        }
+                    });
+
+                });
+        });
+        $("#file-3").fileinput({
+            showUpload: false,
+            showCaption: false,
+            browseClass: "btn btn-primary btn-lg",
+            fileType: "any",
+            language: 'zh',
+            uploadUrl: '#',
+            allowedFileExtensions : ['jpg', 'png','gif'],
+        });
+        $('#otherModal').modal('hide');
+        $(document).on('click','#othersaveBtn',function () {
+            if (CX.Validate.form("otherauForm")) {
+                if(document.getElementById('otherfile-3').value.length==0){
+                    sweetAlert("请上传图片！", "必须添加图片,否则无法添加数据", "error");
+                    return;
+                }
+                var poductTypeId= $('#productType').val();
+                $('#othermyModal').modal('hide');
+                var form = new FormData(document.getElementById("otherauForm"));
+                $.ajax({
+                    url : "/upload",
+                    type : "POST",
+                    data:form,
+                    processData:false,
+                    contentType:false,
+                    beforeSend : function(xhr) {
+                        xhr.setRequestHeader(header, token);
+                    },
+                    success : function(data) {
+                        sweetAlert("数据添加成功！", "数据已经添加完毕！", "success");
+                        getbaseList(poductTypeId);
+                        $('#otherModal').modal('hide');
+
+                    }
+                });
+            }
+        });
+        $("#otherfile-3").fileinput({
+            showUpload: false,
+            showCaption: false,
+            browseClass: "btn btn-primary btn-lg",
+            fileType: "any",
+            language: 'zh',
+            uploadUrl: '#',
+            allowedFileExtensions : ['jpg', 'png','gif'],
+        });
+        $('#carouselModal').modal('hide');
+        $('#yearModal').modal('hide');
+
+
+//        初始化
+        var initTypeId=[[${productVoList[0].productType.id}]];
+        getbaseList(initTypeId);
+    })
+    /*]]>*/
+</script>
+</html>
+
+<!--轮播，周，月，年-->

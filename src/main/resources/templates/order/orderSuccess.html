@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=10"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+    <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap-theme.css}" type="text/css"/>
+    <link rel="styleSheet" th:href="@{/MyCss/index.css}" type="text/css"/>
+    <script th:src="@{/jquery/jquery-3.2.1.min.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.js}"></script>
+    <title>下单成功</title>
+
+    <style>
+        .order{
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+<div style="border-bottom:2px #ff3300 solid;height: 120px;width: 100%;margin-bottom: 40px">
+    <div class="container" style="padding-top: 35px">
+        <strong style="font-size: 27px">下单成功</strong>
+        <span style="margin-left: 20px">恭喜您下单成功，小蜜会立即为您配送</span>
+    </div>
+</div>
+
+<div style="border: solid 1px #cccccc">
+<div class="container">
+    <div style="font-size: 20px">恭喜您下单成功，小蜜会立即为您进行配送，欢迎下次观临！</div>
+    <ul class="list-group">
+        <li class="list-group-item list-group-item-success order" th:inline="text"><span style="margin-right: 20px;font-size: 15px">订单编号：</span>[[${order.id}]]</li>
+        <li class="list-group-item list-group-item-info order" th:inline="text"><span style="margin-right: 20px;font-size: 15px">下单日期：</span>[[${order.createDate}]]</li>
+        <li class="list-group-item list-group-item-success order" th:inline="text"><span style="margin-right: 20px;font-size: 15px">收货人：&nbsp;&nbsp;&nbsp;</span>[[${user.username}]]</li>
+        <li class="list-group-item list-group-item-info order" th:inline="text"><span style="margin-right: 20px;font-size: 15px">电话：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>[[${user.phonenumber}]]</li>
+        <li class="list-group-item list-group-item-success order" th:inline="text"><span style="margin-right: 20px;font-size: 15px">地址：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>[[${user.address}]]</li>
+    </ul>
+    <!--<div class="order" th:inline="text">订单编号：[[${order.id}]]</div>-->
+    <!--<div class="order" th:inline="text">下单日期：[[${order.createDate}]]</div>-->
+    <!--<div class="order" th:inline="text">收货人：[[${user.username}]]</div>-->
+    <!--<div class="order" th:inline="text">电话：[[${user.phonenumber}]]</div>-->
+    <!--<div class="order" th:inline="text">地址：[[${user.address}]]</div>-->
+</div>
+
+<div class="container" style="margin-top: 50px">
+    <a href="/llg/showOrderDetails"><button type="button" class="btn btn-info">查看订单</button></a>
+    <a th:href="@{/ProductShow}"><button type="button" class="btn btn-info">继续购物</button></a>
+    <a th:href="@{/}"><button type="button" class="btn btn-info">回到首页</button></a>
+    <a href="#" onclick="logout()"><button type="button" class="btn btn-info">退出登录</button></a>
+</div>
+    <div class="container" style="font-size: 15px;border-top: solid 1px RGB(43,43,43);">
+        <div style="width: 100%;margin: 30px 0px 30px 0px">您对我们的鼓励 是我们最大的动力 期待与你的下次相遇</div>
+        </div>
+</div>
+<form style="display: none;" id='formlogout' th:action="@{/logout}" method="post"></form>
+<!-- 用户信息设置模态框（Modal） -->
+<div class="modal fade" id="myModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    个人信息设置
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="auForm" class="form-horizontal" role="form" th:action="@{/updateUser}"   method="post">
+                    <input id="userid" name="id"   type="hidden" value="" />
+                    <input id="ROLE_USER" name="ROLE_USER"   type="hidden" value="" />
+                    <input id="istrue" name="istrue"   type="hidden" value="" />
+                    <div class="form-group">
+                        <label for="updateusername" class="col-sm-3 control-label"><font color="red">*</font>用户名：</label>
+                        <div class="col-sm-8">
+                            <input id="updateusername" name="username" type="text" cxValidate="required"  class="form-control" placeholder="请输入名字"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label"><font color="red">*</font>密码：</label>
+                        <div class="col-sm-8">
+                            <input type="password" name="password" id="password" cxValidate="ennum"  class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phonenumber" class="col-sm-3 control-label"><font color="red">*</font>号码：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="phonenumber" id="phonenumber" cxValidate="required"  class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="col-sm-3 control-label"><font color="red">*</font>地址：</label>
+                        <div class="col-sm-8">
+                            <textarea  name="address" id="address" cxValidate="required"  class="form-control" style="height: 100px ; overflow: hidden"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-3 control-label"><font color="red">*</font>邮箱：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="email" id="email" cxValidate="email"  class="form-control"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="background: rgba(248,248,248,1)" >
+                <button type="button" id="saveBtn" class="btn btn-info" >
+                    确认保存
+                </button>
+                <button type="button" id="closeBtn" class="btn btn-default" data-dismiss="modal">
+                    取消修改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- #dialog-confirm -->
+<script>
+    function setForm() {
+        $.ajax({
+            url : "/getUser",
+            type : "GET",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                $('#userid').val(data.id);
+                $('#istrue').val(data.istrue);
+                $('#ROLE_USER').val(data.ROLE_USER);
+                $('#updateusername').val(data.username);
+                $('#password').val(data.password);
+                $('#phonenumber').val(data.phonenumber);
+                $('#address').val(data.address);
+                $('#email').val(data.email);
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+    }
+    $(document).on('click','#saveBtn',function () {
+        if (CX.Validate.form("auForm")) {
+            var form = new FormData(document.getElementById("auForm"));
+            $.ajax({
+                url : "/updateUser",
+                type : "POST",
+                data:form,
+                processData:false,
+                contentType:false,
+                beforeSend : function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success : function(data) {
+                    $('#myModal').modal('hide');
+                    sweetAlert("信息修改成功！", "个人信息已经修改完毕！", "success");
+
+                    logout();
+                }
+            });
+
+        }
+    });
+
+    function logout() {
+        $('#formlogout').submit();
+    }
+</script>
+</body>
+</html>

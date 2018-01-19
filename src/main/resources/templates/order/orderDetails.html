@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+        <meta charset="UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=10"/>
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header"  th:content="${_csrf.headerName}"/>
+        <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap.css}" type="text/css"/>
+        <link rel="styleSheet" th:href="@{/bootstrap/css/bootstrap-theme.css}" type="text/css"/>
+        <link rel="styleSheet" th:href="@{/MyCss/index.css}" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.2.1.min.js}"></script>
+        <script th:src="@{/bootstrap/js/bootstrap.js}"></script>
+    <title>订单详情</title>
+    <style>
+        .font-size {
+            font-size: 25px;
+        }
+
+        .body {
+            float: left;
+            width: 120px;
+            height: 50px;
+        }
+
+        .head {
+            float: left;
+            width: 120px;
+            height: 50px;
+            padding-top: 13px;
+        }
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" th:href="@{/}">烨之鑫批发商城</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li ><a th:href="@{/ProductShow}">商品<span class="sr-only">(current)</span></a></li>
+                <li><a th:href="@{/llg/cart}">购物车</a></li>
+            </ul>
+            <!--<form class="navbar-form navbar-left">-->
+            <!--<div class="form-group">-->
+            <!--<input type="text" class="form-control" placeholder="Search"/>-->
+            <!--</div>-->
+            <!--<button type="submit" class="btn btn-default">商品查找</button>-->
+            <!--</form>-->
+            <ul class="nav navbar-nav navbar-right">
+                <li ><a  ><span id="username"></span></a></li>
+                <li th:if="${session.SPRING_SECURITY_CONTEXT} == null "><a th:href="@{/login}">登录</a></li>
+                <li th:if="${session.SPRING_SECURITY_CONTEXT} != null "><a href="#" onclick="logout()" >注销</a></li>
+                <li><a href="/register">注册</a></li>
+                <li class="dropdown">
+                    <a href="#" th:if="${session.SPRING_SECURITY_CONTEXT} != null " class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">用户中心 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a  data-target="#myModal" onclick="setForm()" data-toggle="modal"  href="#">资料设置</a></li>
+                        <li><a href="/llg/showOrderDetails">我的订单</a></li>
+                        <li id="admin" style="display: none"><a href="/admin/admin">后台管理</a></li>
+                        <li id="admins" style="display: none"><a href="/admin/allOrders">所有订单</a></li>
+                        <!--<li role="separator" class="divider"></li>-->
+                    </ul>
+                </li>
+            </ul>
+
+
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div style="border-bottom:2px #ff3300 solid;height: 120px;width: 100%;margin-bottom: 40px">
+    <div class="container" style="padding-top: 35px">
+        <strong style="font-size: 27px">订单详情</strong>
+        <span style="margin-left: 20px">在这里您能查看您的所有订单</span>
+    </div>
+</div>
+<div class="container" style="background-color:white;border-left: solid RGB(255,174,14) 2px;border-right: solid RGB(255,174,14) 2px">
+    <div class="font-size" style="margin-left: 10%">我的订单</div>
+    <div class="panel-group" id="accordion" style="margin-left: 10%">
+
+    <!--开始循环-->
+        <tr th:each="odv,iterStat : ${ordersDetailsVoList}">
+            <td>
+                <div style="height: 100%;width: 800px;border: 2px RGB(255,147,14) solid;margin: 20px;overflow: hidden">
+                    <div style="height: 80px;padding-left: 20px">
+                        <div class="font-size" style="color:#ff3300;margin-bottom: 10px">已付款</div>
+                        <span th:inline="text">[[${odv.orders.createDate}]]</span>
+                        <span th:inline="text">[[${odv.user.username}]]</span>
+                        <span th:inline="text">[[${odv.user.phonenumber}]]</span>
+                        <span class="font-size" th:inline="text" style="float: right;margin-right: 20px">订单金额：<span
+                                style="color: red">￥[[${odv.allprice}]]</span></span>
+                    </div>
+
+                    <div style="position: relative">
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading" style="background: none">
+                                <h4 class="panel-title" style="text-align: right">
+                                    <a data-toggle="collapse" data-parent="#accordion"
+                                       th:href="'#'+${odv.orders.id}">
+                                        商品详情
+                                    </a>
+                                </h4>
+                            </div>
+                            <div th:id="${odv.orders.id}" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div style="overflow: hidden">
+                                        <div class="head" style="width: 300px">
+                                            商品名称
+                                        </div>
+                                        <div class="head">
+                                            单价
+                                        </div>
+                                        <div class="head">
+                                            数量
+                                        </div>
+                                    </div>
+                                    <th:block th:each="odl,iterStat : ${odv.ordersDetailsList}">
+                                    <!--商品循环-->
+                                    <div style="overflow: hidden">
+                                        <div>
+                                            <div class="body font-product" style="width: 300px">
+                                                <span th:inline="text">[[${odl.product.name}]]</span>
+                                            </div>
+                                            <div class="body font-price" style="width: 130px">
+                                                <span th:inline="text">[[${odl.product.productDetails.onePrice}]]</span>
+                                            </div>
+                                            <div class="body font-price" style="width: 112px">
+                                                <span th:inline="text">[[${odl.productCount}]]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </th:block>
+                                    <!--商品循环结束-->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </td>
+        </tr>
+<!--循环结束-->
+    </div>
+</div>
+<form style="display: none;" id='formlogout' th:action="@{/logout}" method="post"></form>
+<!-- 用户信息设置模态框（Modal） -->
+<div class="modal fade" id="myModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 100%">
+            <div class="modal-header " style="background: rgba(248,248,248,1)">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    个人信息设置
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="auForm" class="form-horizontal" role="form" th:action="@{/updateUser}"   method="post">
+                    <input id="userid" name="id"   type="hidden" value="" />
+                    <input id="ROLE_USER" name="ROLE_USER"   type="hidden" value="" />
+                    <input id="istrue" name="istrue"   type="hidden" value="" />
+                    <div class="form-group">
+                        <label for="updateusername" class="col-sm-3 control-label"><font color="red">*</font>用户名：</label>
+                        <div class="col-sm-8">
+                            <input id="updateusername" name="username" type="text" cxValidate="required"  class="form-control" placeholder="请输入名字"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label"><font color="red">*</font>密码：</label>
+                        <div class="col-sm-8">
+                            <input type="password" name="password" id="password" cxValidate="ennum"  class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phonenumber" class="col-sm-3 control-label"><font color="red">*</font>号码：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="phonenumber" id="phonenumber" cxValidate="required"  class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="col-sm-3 control-label"><font color="red">*</font>地址：</label>
+                        <div class="col-sm-8">
+                            <textarea  name="address" id="address" cxValidate="required"  class="form-control" style="height: 100px ; overflow: hidden"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-3 control-label"><font color="red">*</font>邮箱：</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="email" id="email" cxValidate="email"  class="form-control"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="background: rgba(248,248,248,1)" >
+                <button type="button" id="saveBtn" class="btn btn-info" >
+                    确认保存
+                </button>
+                <button type="button" id="closeBtn" class="btn btn-default" data-dismiss="modal">
+                    取消修改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- #dialog-confirm -->
+<script>
+    /*<![CDATA[*/
+    var header = $("meta[name='_csrf_header']").attr("content");
+    var token =$("meta[name='_csrf']").attr("content");
+    function setForm() {
+        $.ajax({
+            url : "/getUser",
+            type : "GET",
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                $('#userid').val(data.id);
+                $('#istrue').val(data.istrue);
+                $('#ROLE_USER').val(data.ROLE_USER);
+                $('#updateusername').val(data.username);
+                $('#password').val(data.password);
+                $('#phonenumber').val(data.phonenumber);
+                $('#address').val(data.address);
+                $('#email').val(data.email);
+            }
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+    }
+    $(document).on('click','#saveBtn',function () {
+        if (CX.Validate.form("auForm")) {
+            var form = new FormData(document.getElementById("auForm"));
+            $.ajax({
+                url : "/updateUser",
+                type : "POST",
+                data:form,
+                processData:false,
+                contentType:false,
+                beforeSend : function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success : function(data) {
+                    $('#myModal').modal('hide');
+                    sweetAlert("信息修改成功！", "个人信息已经修改完毕！", "success");
+
+                    logout();
+                }
+            });
+
+        }
+    });
+    function logout() {
+        $('#formlogout').submit();
+        return true;
+    }
+    $(function () {
+        $.ajax({
+            url : "/getUsername",
+            type : "POST",
+            data : "",
+            contentType : 'application/json;charset=utf-8',
+            //async : false,
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+
+            },
+            success : function(data) {
+                if(data!=''){
+                    $("#username").html('欢迎您,'+data);
+                }
+            },
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+        $.ajax({
+            url : "/getAdminRole",
+            type : "POST",
+            data : "",
+            contentType : 'application/json;charset=utf-8',
+            //async : false,
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success : function(data) {
+                if(data=='admin'){
+                    $("#admin").css('display', 'block');
+                    $("#admins").css('display', 'block');
+
+                }
+            },
+//            error : function(xhr, ajaxOptions, throwError) { }
+        });
+    })
+    /*]]>*/
+</script>
+</body>
+</html>
