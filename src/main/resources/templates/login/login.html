@@ -6,8 +6,14 @@
     <link rel="styleSheet" th:href="@{bootstrap/css/bootstrap-theme.css}" type="text/css"/>
     <link rel="styleSheet" th:href="@{bootstrap/css/bootstrap.min.css}" type="text/css"/>
     <link rel="styleSheet" th:href="@{MyCss/index.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{https://jqueryvalidation.org/files/demo/site-demos.css}"/>
     <script th:src="@{jquery/jquery-3.2.1.min.js}"></script>
     <script th:src="@{bootstrap/js/bootstrap.js}"></script>
+    <script th:src="@{https://code.jquery.com/jquery-1.11.1.min.js}" ></script>
+    <script th:src="@{https://jqueryvalidation.org/files/dist/jquery.validate.min.js}" ></script>
+    <script th:src="@{https://jqueryvalidation.org/files/dist/additional-methods.min.js}" ></script>
+    <script th:src="@{http://static.runoob.com/assets/jquery-validation-1.14.0/dist/localization/messages_zh.js}" ></script>
+
     <style>
 
         body{
@@ -27,7 +33,7 @@
     <div class="layouttt" style="position: absolute;top:15%;right: 38%">
         <div style="margin: 25px;padding-top: 20px">
             <p style="font-size: 25px;text-align: center;margin-bottom: 40px">账号登录</p>
-            <form style="margin:20px auto" th:action="@{/login}" method="post">
+            <form id="myform" style="margin:20px auto" th:action="@{/login}" method="post">
                 <div class="form-group">
                     <input type="text" name="username" class="form-control" style="height: 50px" id="username" placeholder="登录名"/>
                 </div>
@@ -43,6 +49,24 @@
         </div>
     </div>
 </div>
-
+<script>
+    // just for the demos, avoids form submit
+    jQuery.validator.setDefaults({
+        debug: false,
+        success: "valid"
+    });
+    $( "#myform" ).validate({
+        rules: {
+            username: {
+                required: true,
+                minlength: 2
+            },
+            password: "required",
+            password_again: {
+                equalTo: "#password"
+            }
+        }
+    });
+</script>
 </body>
 </html>
